@@ -145,7 +145,10 @@ chmod +x automation.sh
  16. Exit
 ===============================================
 
-🧪 Testing
+
+
+
+## **🧪 Testing **
 -----------------------------------------------
 Tested on multiple Linux distributions:
 
@@ -162,7 +165,7 @@ Testing included:
 - Error handling for invalid input
 ------------------------------------------------
 
-🚀 Future Enhancements
+## **🚀 Future Enhancements **
 ========================================
 - Add colorful UI for better UX
 - Password expiry & policy management
@@ -173,9 +176,9 @@ Testing included:
 - Role-based access
 =========================================
 
-🤝 Author
+## **🤝 Author **
 Vaibhav Kumar Sahu
 Developer | DevOps and Cybersecurity Enthusiast
 
-📜 License
+## **📜 License **
 This project is open-source and free to use under the MIT License.

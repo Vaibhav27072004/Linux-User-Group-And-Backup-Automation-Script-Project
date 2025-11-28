@@ -144,9 +144,7 @@ chmod +x automation.sh
 
  16. Exit
 ===============================================
-
-
-
+```
 
 ## **🧪 Testing **
 -----------------------------------------------
@@ -176,7 +174,7 @@ Testing included:
 - Role-based access
 =========================================
 
-## **🤝 Author **
+## **🤝 Author ** 
 Vaibhav Kumar Sahu
 Developer | DevOps and Cybersecurity Enthusiast
 

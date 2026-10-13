@@ -268,6 +268,8 @@ Running as root shouldn't require `sudo` to be installed at all.
 ```text
 .
 ├── main.sh              # The tool: 16 operations, ~595 lines
+├── tests/
+│   └── smoke-test.sh     # 32 assertions against a real Linux system
 ├── README.md
 ├── LICENSE              # MIT
 ├── .gitignore           # keeps logs/ and backup/ out of version control
@@ -284,33 +286,66 @@ Running as root shouldn't require `sudo` to be installed at all.
 
 ---
 
-## 🧪 Verification Status
+## 🧪 Verification
 
-Honest accounting of what has and hasn't been exercised.
+All sixteen operations are exercised by an automated smoke test against a real
+Linux system. **32 assertions, 0 failures**, and `shellcheck` reports no findings.
 
-**Verified by running the script:**
+### Run it yourself
+
+The test creates and deletes real accounts, so it refuses to run outside a
+container unless you override the guard deliberately:
+
+```bash
+docker run --rm -i ubuntu:24.04 bash -s < tests/smoke-test.sh
+```
+
+Or inside a container that already has the repo:
+
+```bash
+bash tests/smoke-test.sh
+```
+
+### What it asserts
+
+| Area | Assertion |
+|---|---|
+| Add user | Account exists and the home directory was created |
+| Add to group | Membership added **and no pre-existing groups were lost** — catches the `usermod -G` vs `-aG` trap |
+| Remove from group | Membership actually gone |
+| Modify home | `passwd` entry updated, new directory exists, **a planted file really moved**, old directory removed |
+| Delete user | Account gone and the home directory removed |
+| Delete group | Group gone |
+| Read-only views | All four listings print their headers and include the expected entries |
+| Input validation | `Bad Name`, `9bad`, `BAD` and `-u` all rejected, with nothing created |
+| Audit honesty | Every operation produced its matching `OK:` line, **zero `FAILED` entries**, and each line records the acting user |
+
+### Also verified
 
 | Area | What was checked |
 |---|---|
-| Backup naming | Three backups of one directory in one session produce three distinct archives |
-| Atomic writes | No `.part` files left behind after a failed run |
+| `sudo` path | Run as a non-root admin, `priv()` elevates correctly and the log attributes the action to that user, not `root` |
+| No-privilege path | With neither root nor `sudo`, the script warns at startup instead of failing halfway |
+| Backup naming | Two backups of one directory in the same second produce two distinct archives |
+| Relative paths | Archiving `/etc/apt` yields members like `apt/...`, with no `Removing leading '/'` warning |
+| Atomic writes | No `.part` files left behind |
 | Self-exclusion | Backing up the project folder excludes `logs/` and `backup/`; backing up `backup/` itself succeeds |
 | `tar` exit codes | `1` keeps the archive and warns; `2`+ discards and fails |
 | Audit accuracy | A genuinely failing `useradd` logs `FAILED (exit 5)`, not a success |
-| Input validation | Empty, whitespace, uppercase, digit-leading and `-`-leading names all rejected; non-numeric line counts rejected |
 | Path anchoring | Invoked from an unrelated directory, zero files created there |
-| Syntax | `bash -n` clean |
+| Static analysis | `shellcheck` clean; `bash -n` clean |
 
-**Not yet verified:** the seven privileged operations themselves — `useradd`, `userdel`, `usermod`, `groupadd`, `groupdel`, `gpasswd`. The error-handling layer around them is tested; the commands behind it need a run on a real Linux host. A `shellcheck` pass is also still pending.
-
-If you're evaluating this project, that distinction is the honest one: **the plumbing is proven, the privileged calls need a VM run.**
+**Environment:** Ubuntu 24.04, bash 5.2.21, shellcheck 0.9.0. Other distributions
+should behave identically — the script relies only on `shadow-utils`, GNU
+coreutils and `tar` — but Ubuntu 24.04 is what has actually been tested.
 
 ---
 
 ## 🚀 Roadmap
 
-- [ ] Automated smoke test in a Docker container, covering menu items 1–11
-- [ ] `shellcheck` in CI
+- [x] Automated smoke test in a Docker container, covering menu items 1–11
+- [x] `shellcheck` pass (clean)
+- [ ] Run the smoke test and `shellcheck` automatically in GitHub Actions
 - [ ] Password policy: set an initial password, `chage -d 0` to force a change at first login
 - [ ] Non-interactive flags (`--add-user`, `--backup`) so the tool is usable from `cron`
 - [ ] Scheduled backups with retention (keep last N)

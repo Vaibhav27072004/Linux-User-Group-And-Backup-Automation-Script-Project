@@ -1,0 +1,6 @@
+# Shell scripts must keep LF endings. Checked out with CRLF on Windows and then
+# run on Linux, bash fails with "bad interpreter: /bin/bash^M".
+*.sh text eol=lf
+
+# Backup archives are binary; never line-ending-convert or diff them.
+*.tar.gz binary

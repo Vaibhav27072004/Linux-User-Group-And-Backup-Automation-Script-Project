@@ -1,0 +1,6 @@
+# Runtime state created by main.sh -- never commit logs or backup archives.
+logs/
+backup/
+
+# Partial archives from an interrupted backup
+*.tar.gz.part
